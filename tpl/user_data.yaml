@@ -1,0 +1,97 @@
+#cloud-config
+
+ssh_keys:
+  ecdsa_private: |
+    ${host_ecdsa_private}
+  ecdsa_public: ${host_ecdsa_public}
+
+package_update: true
+package_upgrade: true
+packages:
+  - unattended-upgrades
+
+write_files:
+  - path: /root/coder/docker-compose.yaml
+    permissions: 0600
+    content: |
+      version: "3.9"
+      services:
+        coder:
+          image: ghcr.io/coder/coder:${coder_version}
+          environment:
+            CODER_PG_CONNECTION_URL: "postgresql://coder:${pg_password}@db/coder?sslmode=disable"
+            CODER_ADDRESS: "0.0.0.0:7080"
+            CODER_ACCESS_URL: "https://${coder_domain}"
+            CODER_WILDCARD_ACCESS_URL: "*.${coder_domain}"
+          group_add:
+            - "999"
+          volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+          ports:
+            - "127.0.0.1:7080:7080"
+          restart: unless-stopped
+          depends_on:
+            db:
+              condition: service_healthy
+        db:
+          image: "postgres:${pg_version}"
+          environment:
+            POSTGRES_USER: coder
+            POSTGRES_PASSWORD: ${pg_password}
+            POSTGRES_DB: coder
+          volumes:
+            - coder_data:/var/lib/postgresql/data
+          healthcheck:
+            test:
+              [
+                "CMD-SHELL",
+                "pg_isready -U coder -d coder",
+              ]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+          restart: unless-stopped
+        caddy:
+          image: caddy:${caddy_version}
+          ports:
+            - "80:80"
+            - "443:443"
+          volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile
+            - caddy_data:/data
+            - caddy_config:/config
+          restart: unless-stopped
+      volumes:
+        coder_data:
+        caddy_data:
+        caddy_config:
+
+  - path: /root/coder/Caddyfile
+    permissions: 0600
+    content: |
+      ${coder_domain}, *.${coder_domain} {
+        reverse_proxy coder:7080
+        tls {
+          on_demand
+          issuer acme {
+            email ${acme_email}
+          }
+        }
+      }
+
+  - path: /root/coder/create_initial_user.sh
+    permissions: 0700
+    content: |
+      #!/usr/bin/env bash
+      curl -X POST -H 'Content-Type: application/json' -d '{
+        "email": "${acme_email}",
+        "password": "${coder_initial_password}",
+        "username": "admin",
+        "trial": false
+      }' http://localhost:7080/api/v2/users/first -w '%%{http_code}' --silent --output /dev/null
+
+runcmd:
+  - echo unattended-upgrades unattended-upgrades/enable_auto_updates boolean true | debconf-set-selections
+  - dpkg-reconfigure -f noninteractive unattended-upgrades
+  - (cd /root/coder && docker compose up -d coder)
+  - while [ $(/root/coder/create_initial_user.sh) -ne 201 ]; do sleep 1; done

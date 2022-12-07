@@ -1,0 +1,4 @@
+.idea
+.terraform
+secrets.auto.tfvars
+terraform.tfstate*
