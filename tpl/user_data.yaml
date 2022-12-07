@@ -95,3 +95,4 @@ runcmd:
   - dpkg-reconfigure -f noninteractive unattended-upgrades
   - (cd /root/coder && docker compose up -d coder)
   - while [ $(/root/coder/create_initial_user.sh) -ne 201 ]; do sleep 1; done
+  - (cd /root/coder && docker compose up -d caddy)
