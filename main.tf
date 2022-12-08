@@ -13,16 +13,6 @@ resource "tls_private_key" "host" {
   ecdsa_curve = "P521"
 }
 
-resource "random_string" "pg_password" {
-  length  = 32
-  special = false
-}
-
-resource "random_string" "coder_initial_password" {
-  length  = 32
-  special = false
-}
-
 resource "hcloud_server" "node" {
   name         = "coder-node"
   image        = "docker-ce"
@@ -42,28 +32,3 @@ resource "hcloud_server" "node" {
     coder_initial_password = random_string.coder_initial_password.result
   })
 }
-
-resource "null_resource" "wait_online" {
-  provisioner "local-exec" {
-    command     = <<EOC
-      while ! ./bin/ssh -q exit ; do sleep 1; done
-    EOC
-    interpreter = ["bash", "-c"]
-  }
-  depends_on = [hcloud_server.node, local_file.ssh_script]
-}
-
-resource "null_resource" "provisioning" {
-  provisioner "remote-exec" {
-    inline = [
-      "docker ps"
-    ]
-  }
-  connection {
-    host = hcloud_server.node.ipv4_address
-    host_key = tls_private_key.host.public_key_openssh
-    private_key = tls_private_key.client.private_key_pem
-  }
-  depends_on = [null_resource.wait_online]
-}
-
