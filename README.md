@@ -11,4 +11,4 @@
 
 ## Templates
 
-### [templates/hcloud](hcloud)
+### [hcloud](templates/hcloud)
