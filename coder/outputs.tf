@@ -3,12 +3,12 @@ output "instructions" {
 
   ############
   # required DNS-records
-  #   ${var.coder_domain}. A ${hcloud_server.node.ipv4_address}
+  #   ${var.coder_domain}. A ${hcloud_server.coder.ipv4_address}
   #   *.${var.coder_domain}. CNAME ${var.coder_domain}.
   #
   # initial user (admin)
   #   ${var.acme_email}
-  #   ${random_string.coder_initial_password.result}
+  #   ${random_string.coder_init_pass.result}
   #
   # SSH access
   #   client key: ./gen/id_ecdsa
