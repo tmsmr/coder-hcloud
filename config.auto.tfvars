@@ -1,7 +1,0 @@
-instance_type = "cx11"
-location = "nbg1"
-coder_version = "v0.13.1"
-pg_version = "14.2"
-caddy_version = "2.6.2"
-coder_domain = "coder.example.com"
-acme_email = "admin@example.com"
