@@ -1,10 +1,13 @@
-output "instructions" {
+output "result" {
   value = <<EOT
 
   ############
   # required DNS-records
   #   ${var.coder_domain}. A ${hcloud_server.coder.ipv4_address}
   #   *.${var.coder_domain}. CNAME ${var.coder_domain}.
+  #
+  # public url
+  #   https://${var.coder_domain}
   #
   # initial user (admin)
   #   ${var.acme_email}

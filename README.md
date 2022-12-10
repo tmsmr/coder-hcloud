@@ -1,22 +1,17 @@
 # coder-hcloud
-*One-shot deployment and templates for Coder on Hetzner Cloud*
+*Terraform based one-shot deployment of [Coder OSS](https://github.com/coder/coder) on a [Hetzner Cloud](https://www.hetzner.com/de/cloud) instance.*
 
-This project serves two purposes:
-- Terraform based deployment of [Coder OSS](https://github.com/coder/coder) on a [Hetzner Cloud](https://www.hetzner.com/de/cloud) instance.
-- [Template](https://coder.com/docs/coder-oss/latest/templates)(s) for Coder to create [Workspaces](https://coder.com/docs/coder-oss/latest/workspaces) on Hetzner Cloud instances.
-
-## Coder Deployment
-
-### Quickstart
-- Copy `coder/config.auto.tfvars.example` to `coder/config.auto.tfvars`
-- Adjust `coder/config.auto.tfvars`
-- `cd coder && terraform init && terraform apply`
+## Quickstart
+- Copy `config.auto.tfvars.example` to `config.auto.tfvars`
+- Adjust `config.auto.tfvars`
+- `terraform init && terraform apply`
 - Create DNS records
-- Open Coder, login with initial admin user
+- Open Coder, login with the initial admin user
+- (Install Templates from `coder-templates`)
 
-### A little bit more details
+## A little bit more details
 
-#### Configuration
+### Configuration/Variables
 | Variable      | Default | Description                                                                                             |
 |---------------|---------|---------------------------------------------------------------------------------------------------------|
 | hcloud_apikey |         | A R/W API-Key for the Hetzner Cloud project Coder shall be deployed in                                  |
@@ -25,15 +20,27 @@ This project serves two purposes:
 | coder_domain  |         | Desired Domain for Coder (Used for CODER_ACCESS_URL, CODER_WILDCARD_ACCESS_URL and Caddy/Let's Encrypt) |
 | acme_email    |         | Administrative Email address used for Let's Encrypt and for the initial Coder user                      |
 
-#### Resource allocation
+### Deployment
 *SSH*
 
-Terraform creates TLS keys for the client and the host. The host key is installed later using cloud-init. The client key is registered in the Hetzner Cloud project and can be used later for regular maintenance tasks.
+Terraform creates keys for the client and the host. The host key is installed later using Cloud-init. The client key is registered in the Hetzner Cloud project and can be used later for regular maintenance tasks. You may use the preconfigured wrapper script `./bin/ssh` for easy access.
 
 *Firewall*
 
+A Hetzner Cloud Firewall is applied. Outgoing traffic is allowed generally. Incoming traffic is restricted to ICMP and HTTP 80, 443.
+
+*Coder installation (Cloud-init)*
+
+Coder is managed via Docker Compose (Adapted from https://github.com/coder/coder/blob/main/docker-compose.yaml).
+- First, only Coder and Postgress is started...
+- When Coder is ready, the initial admin account is created...
+- After that, the Proxy (Caddy) is started as well
+
+*Maintenance*
+
+While the Debian updates are mostly managed via `unattended-upgrades`, **you have to take care of the updates for the Docker Compose stack (`/root/coder/docker-compose.yaml`) manually!**
 
 
 ## Templates
 
-### [hcloud](templates/hcloud)
+### [hcloud](coder-templates/hcloud)
