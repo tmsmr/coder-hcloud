@@ -25,6 +25,15 @@ This project serves two purposes:
 | coder_domain  |         | Desired Domain for Coder (Used for CODER_ACCESS_URL, CODER_WILDCARD_ACCESS_URL and Caddy/Let's Encrypt) |
 | acme_email    |         | Administrative Email address used for Let's Encrypt and for the initial Coder user                      |
 
+#### Resource allocation
+*SSH*
+
+Terraform creates TLS keys for the client and the host. The host key is installed later using cloud-init. The client key is registered in the Hetzner Cloud project and can be used later for regular maintenance tasks.
+
+*Firewall*
+
+
+
 ## Templates
 
 ### [hcloud](templates/hcloud)
