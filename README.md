@@ -7,7 +7,7 @@
 - `terraform init && terraform apply`
 - Create DNS records
 - Open Coder, login with the initial admin user
-- (Install Templates from `coder-templates`)
+- (Install Templates from [coder-templates](https://github.com/tmsmr/coder-templates))
 
 ## A little bit more details
 
@@ -27,7 +27,7 @@ Terraform creates keys for the client and the host. The host key is installed la
 
 *Firewall*
 
-A Hetzner Cloud Firewall is applied. Outgoing traffic is allowed generally. Incoming traffic is restricted to ICMP and HTTP 80, 443.
+A Hetzner Cloud Firewall is applied. Outbound traffic is allowed generally. Inbound traffic is restricted to ICMP and HTTP 80, 443.
 
 *Coder installation (Cloud-init)*
 
@@ -39,8 +39,3 @@ Coder is managed via Docker Compose (Adapted from https://github.com/coder/coder
 *Maintenance*
 
 While the Debian updates are mostly managed via `unattended-upgrades`, **you have to take care of the updates for the Docker Compose stack (`/root/coder/docker-compose.yaml`) manually!**
-
-
-## Templates
-
-### [hcloud](coder-templates/hcloud)
