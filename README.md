@@ -21,21 +21,21 @@
 | acme_email    |         | Administrative Email address used for Let's Encrypt and for the initial Coder user                      |
 
 ### Deployment
-*SSH*
+**SSH**
 
 Terraform creates keys for the client and the host. The host key is installed later using Cloud-init. The client key is registered in the Hetzner Cloud project and can be used later for regular maintenance tasks. You may use the preconfigured wrapper script `./bin/ssh` for easy access.
 
-*Firewall*
+**Firewall**
 
 A Hetzner Cloud Firewall is applied. Outbound traffic is allowed generally. Inbound traffic is restricted to ICMP and HTTP 80, 443.
 
-*Coder installation (Cloud-init)*
+**Coder installation (Cloud-init)**
 
 Coder is managed via Docker Compose (Adapted from https://github.com/coder/coder/blob/main/docker-compose.yaml).
 - First, only Coder and Postgres is started...
 - When Coder is ready, the initial admin account is created...
 - After that, the Proxy (Caddy) is started as well
 
-*Maintenance*
+**Maintenance**
 
 While the Debian updates are mostly managed via `unattended-upgrades`, **you have to take care of the updates for the Docker Compose stack (`/root/coder/docker-compose.yaml`) manually!**
